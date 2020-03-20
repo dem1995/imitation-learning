@@ -1,0 +1,4 @@
+*__pycache__/
+intermediates/images
+intermediates/images/*
+.vscode/
