@@ -9,8 +9,11 @@ def relative_performance(player1, player2, num_games, max_moves = 200):
 	"""
 	rungame = lambda: play_game_both_sides(player1, player2, max_moves)
 	games_results = [rungame() for _ in range(num_games//2)]
+	#print(games_results)
 	results_sum = elmy.sum(*games_results)
+	#print(results_sum)
 	results_average = tuple(entry/(num_games//2) for entry in results_sum)
+	#print(results_average)
 	return results_average
 
 def play_game_both_sides(player1, player2, max_moves = 200):
@@ -37,7 +40,7 @@ def play_game(player1, player2, max_moves = 200):
 
 	Returns (-1, -1) if max_moves has been exceeded. Returns (1, 0) if player 1 wins, and returns (0, 1) if player 2 wins.
 	"""
-	results, state_action_pairs = play_game_and_give_action_pairs(player1, RandomPlayer(), max_moves)
+	results, state_action_pairs = play_game_and_give_action_pairs(player1, player2, max_moves)
 	return results
 	
 	
@@ -85,6 +88,7 @@ def play_game_and_give_action_pairs(player1, player2, max_moves = 200):
 			who_won = -1
 	
 	#Get the final scores
+	#print("who won", who_won)
 	if who_won == -1:
 		final_scores = (0, 0)
 	else:

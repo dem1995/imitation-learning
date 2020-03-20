@@ -66,8 +66,8 @@ class ScriptNode(NodeMixin):
 	def scriptstr(self):
 		#Token consideration
 		if self.symbol in [Grammar.Tokens.START, Grammar.Tokens.BOOL, Grammar.Tokens.STBOOL]:
-			print("in first block")
-			print(self.children[0].symbol)
+			#print("in first block")
+			#print(self.children[0].symbol)
 			return self.children[0].scriptstr()
 		elif self.symbol == Grammar.Tokens.SMALLNUM_COMP:
 			lhs = self.children[0].scriptstr()
@@ -87,7 +87,7 @@ class ScriptNode(NodeMixin):
 			return funcstring.format(*params)
 		elif isinstance(self.symbol, str):
 			return self.symbol
-		print(self.symbol)
+		#print(self.symbol)
 		return "whattt"
 
 	def semiterminals(self):
@@ -113,13 +113,10 @@ class ScriptNode(NodeMixin):
 				child = ScriptNode.RandomDerivation(child)
 				child.parent = node
 		return node
-
-
-		
-
-
+	
 class ScriptTree:
 	def __init__(self, tree=None, identification=0):
+		"""dts"""
 		self.tree = tree or ScriptNode.RandomDerivation()
 		self.id = identification
 		def makeClass(scripttree:ScriptTree):
@@ -142,67 +139,38 @@ class Player{self.id}(Player):
 		pass
 
 	def get_action(self, state):
+		global DSL
 		actions = state.available_moves()
         
 		for a in actions:
-			#return a
 			if {self.tree.scriptstr()}:
+				print({self.tree.scriptstr()})
 				return a
-			pass
 		return actions[0]
 '''
 		return retstr
 	
 	def print(self):
 		for pre, fill, node in RenderTree(self.tree):
-			print("%s%s" % (pre, node.name))
+			print("%s%s" % (pre, node.display_name))
 
 	@staticmethod 
 	def Sample(center):
 		#center.print()
 		centerrootcopy = deepcopy(center.tree)
 		nodetomutate = random.choice(centerrootcopy.semiterminals())
+		
+		#Remove a subtree of a semiterminal
+		#print("Node to mutate", nodetomutate.symbol)
+		for mutatednodechild in nodetomutate.children:
+			mutatednodechild.parent = None
+		nodetomutate.children = []
+
+		#Randomly regenerate that subtree
 		mutation = ScriptNode.RandomDerivation(nodetomutate)
+		for mutatednodechild in mutation.children:
+			mutatednodechild.parent = nodetomutate
 		mutatedtree = ScriptTree(centerrootcopy)
 		#mutatedtree.print()
 		return mutatedtree
-
-
-
-
-	
-
-
-
-# class TransitionToken:
-# 	def __init__(self, transitionrule, replacementrule):
-# 		self.
-
-
-# class Grammar:
-
-
-# 	# class Tokens(Enum):
-# 	# 	START = auto(),
-# 	# 	IF = auto(),
-
-
-# 	# class Rules(Enum):
-# 	# 	START = auto(),
-
-
-
-# class ScriptTree:
-# 	def __init__(self):
-
-
-
-	
-
-
-
-
-
-
-# class ScriptNode:
 
