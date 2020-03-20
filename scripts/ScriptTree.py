@@ -12,6 +12,8 @@ from uuid import uuid4
 class Grammar:
 	class Tokens(Enum):
 		START = 1,
+		ANDEXPR2 = 20,
+		ANDEXPR3 = 21,
 		BOOL = 2,
 		STBOOL = 3,
 		SMALLNUM_COMP = 4
@@ -32,7 +34,10 @@ class Grammar:
 
 	transitions = defaultdict(lambda: None)
 	
-	transitions[Tokens.START] = [[Tokens.BOOL]]
+	transitions[Tokens.START] = [[Tokens.BOOL], [Tokens.ANDEXPR2]]
+	#[Tokens.ANDEXPR3]]
+	transitions[Tokens.ANDEXPR2] = [[Tokens.BOOL, Tokens.BOOL]]
+	transitions[Tokens.ANDEXPR3] = [[Tokens.BOOL, Tokens.BOOL, Tokens.BOOL]]
 	transitions[Tokens.BOOL] = [[Tokens.SMALLNUM_COMP], [Tokens.STBOOL]]
 	transitions[Tokens.SMALLNUM_COMP] = [[Semiterminals.SMALLNUM, Semiterminals.INEQSYM, Semiterminals.SMALLNUM]]
 	transitions[Tokens.STBOOL] = [[Functions.IsDoubles], [Functions.ContainsNumber], [Functions.ActionWinsColumn], [Functions.HasWonColumn], [Functions.IsStopAction]]
@@ -69,6 +74,10 @@ class ScriptNode(NodeMixin):
 			#print("in first block")
 			#print(self.children[0].symbol)
 			return self.children[0].scriptstr()
+		elif self.symbol in [Grammar.Tokens.ANDEXPR2, Grammar.Tokens.ANDEXPR3]:
+			# lhs = self.children[0].scriptstr()
+			# rhs = self.children[1].scriptstr()
+			return " and ".join([child.scriptstr() for child in self.children])
 		elif self.symbol == Grammar.Tokens.SMALLNUM_COMP:
 			lhs = self.children[0].scriptstr()
 			center = self.children[1].scriptstr()
@@ -96,14 +105,23 @@ class ScriptNode(NodeMixin):
 		                if node.symbol in list(Grammar.Semiterminals)
 					    	or node.symbol == Grammar.Tokens.STBOOL]
 		return mutablenodes
+	
+	def mutable_tokens(self):
+		traversal = PreOrderIter(self)
+		mutablenodes = [node for node in traversal 
+		                if node.symbol in [Grammar.Tokens.BOOL]]
+		return mutablenodes
 
 	@staticmethod
-	def RandomDerivation(node = None):
+	def RandomDerivation(node = None, forbiddentoroot=[]):
 		node = deepcopy(node)
 
 		if node is None:
-			node = ScriptNode(Grammar.Tokens.START)	
+			node = ScriptNode(Grammar.Tokens.START)
+		
 		transition_possibilities = Grammar.transitions[node.symbol]
+		if not transition_possibilities is None:
+			transition_possibilities=[transition for transition in Grammar.transitions[node.symbol] if not transition in forbiddentoroot]
 
 		if not transition_possibilities is None:
 			children = random.choice(transition_possibilities) 
@@ -115,7 +133,7 @@ class ScriptNode(NodeMixin):
 		return node
 	
 class ScriptTree:
-	def __init__(self, tree=None, identification=0):
+	def __init__(self, tree=None, identification="NoID"):
 		"""dts"""
 		self.tree = tree or ScriptNode.RandomDerivation()
 		self.id = identification
@@ -123,6 +141,7 @@ class ScriptTree:
 			exec(scripttree.to_script())
 			return eval(f'Player{scripttree.id}')
 		self.player = makeClass(self)()
+		self.player.script = self.to_script()
 		
 
 	def save_image_to(self, location):
@@ -144,7 +163,6 @@ class Player{self.id}(Player):
         
 		for a in actions:
 			if {self.tree.scriptstr()}:
-				print({self.tree.scriptstr()})
 				return a
 		return actions[0]
 '''
@@ -155,11 +173,17 @@ class Player{self.id}(Player):
 			print("%s%s" % (pre, node.display_name))
 
 	@staticmethod 
-	def Sample(center):
+	def Sample(center, identification = "NoID", bigmutate=False, startmutate=False):
 		#center.print()
 		centerrootcopy = deepcopy(center.tree)
-		nodetomutate = random.choice(centerrootcopy.semiterminals())
+		if bigmutate:
+			nodetomutate = random.choice(centerrootcopy.mutable_tokens())
+		elif startmutate:
+			nodetomutate = centerrootcopy.root
+		else:
+			nodetomutate = random.choice(centerrootcopy.semiterminals())
 		
+		previous_transition = [child.symbol for child in nodetomutate.children]
 		#Remove a subtree of a semiterminal
 		#print("Node to mutate", nodetomutate.symbol)
 		for mutatednodechild in nodetomutate.children:
@@ -167,10 +191,12 @@ class Player{self.id}(Player):
 		nodetomutate.children = []
 
 		#Randomly regenerate that subtree
-		mutation = ScriptNode.RandomDerivation(nodetomutate)
+		mutation = ScriptNode.RandomDerivation(nodetomutate, forbiddentoroot=[previous_transition])
 		for mutatednodechild in mutation.children:
 			mutatednodechild.parent = nodetomutate
-		mutatedtree = ScriptTree(centerrootcopy)
+		mutatedtree = ScriptTree(centerrootcopy, identification=identification)
 		#mutatedtree.print()
 		return mutatedtree
+
+		
 
