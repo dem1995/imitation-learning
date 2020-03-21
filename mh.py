@@ -110,20 +110,28 @@ def metrohast(samplecount, trainingdata):
 # 	#TODO
 # 	return distance
 
+
+roundcount = 2
+
 if __name__ == "__main__":
 	# # rmtree("./metrohast/__pycache__")
+	Config.filtcount = 1
 	trainingdata = Config.LoadTrainingPairs()
 	print(len(trainingdata))
-	samples, distances = metrohast(200, trainingdata)
+	samples, distances = metrohast(20, trainingdata)
 	best = argmin(distances)
 	print(best)
 	print(distances)
 	print(distances[best])
 	print(samples[best].to_script())
-	with open("intermediates/round1samples.pickle", 'wb') as outfile:
-		pickle.dump([sample.to_script() for sample in samples], outfile)
-	with open("intermediates/round1distances.pickle", 'wb') as outfile:
-		pickle.dump(distances, outfile)
+	Config.filtcount = 2
+	Config.SaveDistances(distances)
+	Config.SaveSamples([sample.to_script() for sample in samples])
+
+	# with open("intermediates/round2samples.pickle", 'wb') as outfile:
+	# 	pickle.dump([sample.to_script() for sample in samples], outfile)
+	# with open("intermediates/round2distances.pickle", 'wb') as outfile:
+	# 	pickle.dump(distances, outfile)
 	# rmtree("./__pycache__")
 	# rmtree("./scripts/__pycache__")
 	# rmtree("./gameplay/__pycache__")
