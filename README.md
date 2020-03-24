@@ -14,4 +14,4 @@ Additional configuration can be done with the ``Config.py`` file.
 Example generated rules are given in the agents/generated folder
 
 ## In-depth information
-For in-depth information on how this program works, see the ``Imitation Learning.pdf`` report.
+For in-depth information on how this program works, see the [``Imitation Learning.pdf``](https://github.com/dem1995/imitation-learning/blob/master/Imitation_Learning.pdf) report.
