@@ -19,22 +19,21 @@ def distance(player:Player, trainingdata):
 			incorrect += 1
 	return incorrect
 
-# def sample(center:ScriptTree):
-# 	return ScriptTree.Sample(center)
-
-
 def metrohast(samplecount, trainingdata):
-	# def computealpha(sampleprime, sample):
-	# 	if sampleprime==0 and sample==0:
-	# 		return 
-	# 	elif sample == 0:
-			
-
+	"""
+	Uses the metropolis-hastings algorithm to collect program samples
+	"""
+	
+	#Create a starting sample (not actually added to the sample list)
+	#Also createa list of samples and distances from those samples to an
+	#  ideal replicating program
 	sample = ScriptTree(identification=0)
 	dist = distance(sample.player, trainingdata)
 	samples = list()
 	distances = list()
 
+	#Until we've generated the desired number of samples, repeat the
+	#  Metropolis-hastings sampling/acceptance loop
 	while len(samples) < samplecount:
 
 		# trims = [ ScriptTree.Sample(sample, uuid4().hex) for i in range(3)]
@@ -50,10 +49,14 @@ def metrohast(samplecount, trainingdata):
 		sampleprime = ScriptTree.Sample(sample, f"{len(samples)}{uuid4().hex}", bigchange, startchange)
 		distprime = distance(sampleprime.player, trainingdata)
 
+		# if distprime == 0:
+		# 	improvement = 1
+		# else:
+		# 	improvement = exp(3*-distprime/dist)
 		if distprime == 0:
 			improvement = 1
 		else:
-			improvement = exp(3*-dist/distprime)
+			improvement = min([1, dist/distprime])
 
 		if random.uniform(0, 1) <= improvement:
 			print("sample num", len(samples))
@@ -65,74 +68,3 @@ def metrohast(samplecount, trainingdata):
 			sample = sampleprime
 			dist = distprime
 	return samples, distances
-
-
-
-# def testdistance():
-# 	samples = Config.LoadTrainingPairs()
-# 	strongplayer = StrongPlayer()
-# 	actions = list()
-# 	for game, action in samples:
-# 		chosenaction = strongplayer.get_action(game)
-# 		gapair = (game, chosenaction)
-# 		actions.append(gapair)
-# 	dist = distance(strongplayer, actions)
-# 	print(dist)
-
-
-
-# def mh(samplecount, trainingset):
-
-# 	sample = None #Todo- generate sample
-# 	samples = list()
-
-# 	while len(samples)<samplecount:
-# 		sampleprime = generate_sample_about(sample) #todo - generate sample
-# 		alpha = distance_function(sampleprime)/distance_function(sample)
-
-
-
-# def sample(center:ScriptTree):
-# 	sample = ScriptTree.sample(center)
-# 	return generated_sample
-
-
-
-
-
-
-
-# #Gets the distance of the sample from the ideal
-# #distance_function(sample) is proportional to underlying_distribution(sample)
-# #so d(x)/d(y) = u(x)/u(y)
-# def distance_function(sample):
-# 	distance = None
-# 	#TODO
-# 	return distance
-
-
-roundcount = 2
-
-if __name__ == "__main__":
-	# # rmtree("./metrohast/__pycache__")
-	Config.filtcount = 1
-	trainingdata = Config.LoadTrainingPairs()
-	print(len(trainingdata))
-	samples, distances = metrohast(20, trainingdata)
-	best = argmin(distances)
-	print(best)
-	print(distances)
-	print(distances[best])
-	print(samples[best].to_script())
-	Config.filtcount = 2
-	Config.SaveDistances(distances)
-	Config.SaveSamples([sample.to_script() for sample in samples])
-
-	# with open("intermediates/round2samples.pickle", 'wb') as outfile:
-	# 	pickle.dump([sample.to_script() for sample in samples], outfile)
-	# with open("intermediates/round2distances.pickle", 'wb') as outfile:
-	# 	pickle.dump(distances, outfile)
-	# rmtree("./__pycache__")
-	# rmtree("./scripts/__pycache__")
-	# rmtree("./gameplay/__pycache__")
-	# rmtree("./agents/__pycache__")

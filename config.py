@@ -2,22 +2,24 @@ import pickle
 
 class Config:
 	filtcount = 0
+	num_original_training_samples = 2000
+	intermediatespath = "intermediates_new"
+	imagepath = f"{intermediatespath}/images"
+	uct_simcount = 15 #150
+	mh_samplecount = 30 #450
 
 	@classmethod
 	def trainingpath(cls, filtcount):
-		return "intermediates/state_action_pairs_filtcount_{0}.pickle".format(filtcount)
+		return f"{cls.intermediatespath}/state_action_pairs_filtcount_{cls.filtcount}.pickle"
 
 	@classmethod
 	def distancespath(cls, filtcount):
-		return "intermediates/distances_filtcount_{0}.pickle".format(filtcount)
+		return f"{cls.intermediatespath}/distances_filtcount_{cls.filtcount}.pickle"
 
 	@classmethod
 	def samplespath(cls, filtcount):
-		return "intermediates/samples_filtcount_{0}.pickle".format(filtcount)
+		return f"{cls.intermediatespath}/samples_filtcount_{cls.filtcount}.pickle"
 
-
-	imagepath = "intermediates/images"
-	uct_simcount = 150
 
 	@classmethod
 	def LoadTrainingPairs(cls):

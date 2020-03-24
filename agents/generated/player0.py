@@ -1,6 +1,6 @@
 from gameplay.player import Player
 from scripts.DSL import DSL
-class Player1(Player):
+class Player0(Player):
 	def __init__(self):
 		pass
 
@@ -9,6 +9,7 @@ class Player1(Player):
 		actions = state.available_moves()
 	
 		for a in actions:
-			if DSL.containsNumber(a, 4):
+			if DSL.hasWonColumn(state,a) and DSL.isStopAction(a):
 				return a
 		return actions[0]
+		
