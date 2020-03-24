@@ -5,8 +5,8 @@ class Config:
 	num_original_training_samples = 2000
 	intermediatespath = "intermediates_new"
 	imagepath = f"{intermediatespath}/images"
-	uct_simcount = 15 #150
-	mh_samplecount = 30 #450
+	uct_simcount = 150 #15 #150
+	mh_samplecount = 450 #30 #450
 
 	@classmethod
 	def trainingpath(cls, filtcount):
